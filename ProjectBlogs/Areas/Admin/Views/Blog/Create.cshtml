@@ -1,0 +1,108 @@
+﻿@model ProjectBlogs.Models.BlogImages
+
+@using Microsoft.Azure.CognitiveServices.Search.ImageSearch.Models
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h2>Новий блог</h2>
+
+<h4>Блог</h4>
+<hr />
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="blog.Name" class="control-label"></label>
+                <input asp-for="blog.Name" class="form-control" />
+                <span asp-validation-for="blog.Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="blog.Description" class="control-label"></label>
+                <input asp-for="blog.Description" class="form-control" />
+                <span asp-validation-for="blog.Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="blog.Content" class="control-label"></label>
+                <textarea rows="5" asp-for="blog.Content" class="form-control"></textarea>
+                <a id="check-text" class="btn btn-info">Перевірити</a>
+                <span asp-validation-for="blog.Content" class="text-danger"></span>
+                <span id="text-good" hidden></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="blog.PhotoUrl" class="control-label">Фото</label>
+                <input class="form-control" type="text" id="searchTerm" />
+                <a id="search-button" class="btn btn-info">Пошук</a>
+                <div id="images-list" class="row"></div>
+                <input asp-for="blog.PhotoUrl" type="hidden" class="form-control" />
+                <span asp-validation-for="blog.PhotoUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Створити" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    function selectImage () {
+        $(".search-images").css("border", "");
+
+        var this_image = $(this);
+
+        this_image.css("border", "solid 3px aqua");
+
+        $("#blog_PhotoUrl").val(this_image.attr("src"));
+    };
+
+    $("#search-button").click(function () {
+        var searchTerm = $("#searchTerm").val();
+
+        $.ajax({
+            url: '/Admin/Blog/GetImages',
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify(searchTerm),
+            success: function (photos) {
+                $('#images-list').empty();
+                var photos = JSON.parse(photos);
+                photos.forEach(function (item) {
+                    $('#images-list').append('<div class="col-sm-3"><img class="search-images" style="width: 100%" src="' + item + '" alt="Card image"></div>');
+                    $('.search-images').click(selectImage);
+                });
+            }
+        });
+    });
+
+    $("#check-text").click(function () {
+        var text = $("#blog_Content").val();
+
+        $.ajax({
+            url: '/Admin/Blog/GetBadWords',
+            type: 'POST',
+            contentType: "application/json",
+            data: JSON.stringify(text),
+            success: function (is_badword) {
+                var errors = $('#text-good');
+                if (is_badword == true) {
+                    errors.show();
+                    errors.css("color", "red");
+                    errors.text("Знайдена ненормативна лексика");
+                }
+                else {
+                    errors.show();
+                    errors.css("color", "green");
+                    errors.text("Усе впорядку");
+                }
+            }
+        });
+    });
+</script>

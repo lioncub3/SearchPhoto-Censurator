@@ -1,0 +1,69 @@
+﻿@model IEnumerable<ProjectBlogs.Models.Blog>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Блоги</h2>
+
+<p>
+    <a class="btn btn-success" asp-action="Create">Створити новий</a>
+</p>
+@if (Model != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Description)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Content)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Date)
+                </th>
+                @*<th width="200px">
+                    @Html.DisplayNameFor(model => model.PhotoUrl)
+                </th>*@
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Content)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Date)
+                    </td>
+                    @*<td width="200px">
+                        @Html.DisplayFor(modelItem => item.PhotoUrl)
+                    </td>*@
+                    <td>
+                        <a class="btn btn-success" asp-action="ViewComments" asp-route-id="@item.Id">Відгуки</a>
+                        <a class="btn btn-info" asp-action="Edit" asp-route-id="@item.Id">Редагувати</a>
+                        <a class="btn btn-danger" asp-action="Delete" asp-route-id="@item.Id">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-info">
+        <strong>Ще не має блогів!</strong>
+    </div>
+}
